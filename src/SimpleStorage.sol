@@ -10,7 +10,7 @@ contract SimpleStorage {
 
     function store(uint256 _favoriteNumber) public {
         // Fix the variable name from the original challenge description
-        favoriteNumber = _favoriteNumber; 
+        favoriteNumber = _favoriteNumber;
         // Emit the event with the new number
         emit NumberStored(_favoriteNumber);
     }
