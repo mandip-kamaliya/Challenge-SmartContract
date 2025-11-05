@@ -1,66 +1,51 @@
-## Foundry
+Smart Contract Fundamentals Challenge
 
-**Foundry is a blazing fast, portable and modular toolkit for Ethereum application development written in Rust.**
+This repository contains a solution for the Smart Contract Fundamentals Challenge. It includes the modified SimpleStorage contract, a Foundry test file, and this explanation.
 
-Foundry consists of:
+Modified Contract (contracts/SimpleStorage.sol)
 
--   **Forge**: Ethereum testing framework (like Truffle, Hardhat and DappTools).
--   **Cast**: Swiss army knife for interacting with EVM smart contracts, sending transactions and getting chain data.
--   **Anvil**: Local Ethereum node, akin to Ganache, Hardhat Network.
--   **Chisel**: Fast, utilitarian, and verbose solidity REPL.
+The base SimpleStorage contract was extended with one new feature as requested:
 
-## Documentation
+NumberStored Event: A public event NumberStored(uint256 newNumber) was added.
 
-https://book.getfoundry.sh/
+Event Emission: The store(uint256 _favoriteNumber) function was modified to emit this new event every time it is called, passing the _favoriteNumber as the event's data.
 
-## Usage
+Purpose of the Event
 
-### Build
+Events are a crucial part of smart contracts. They function as a logging mechanism that allows off-chain applications (like a website frontend) to efficiently "listen" for specific actions that occur on the blockchain.
 
-```shell
-$ forge build
-```
+Instead of an application having to repeatedly call the retrieve() function to check if the number has changed, it can simply subscribe to the NumberStored event. When the store function is executed, the event fires, and the application receives a notification automatically, along with the new number. This is the standard, efficient way to monitor contract activity.
 
-### Test
+Tests (test/SimpleStorage.t.sol)
 
-```shell
-$ forge test
-```
+A Foundry test file was created to verify the contract's functionality. Foundry tests are written directly in Solidity.
 
-### Format
+How the Tests Work
 
-```shell
-$ forge fmt
-```
+The file contains two primary tests (and one optional one) inside a SimpleStorageTest contract:
 
-### Gas Snapshots
+testStoreAndRetrieve:
 
-```shell
-$ forge snapshot
-```
+This test verifies the contract's core storage logic.
 
-### Anvil
+The setUp() function first deploys a fresh instance of SimpleStorage.
 
-```shell
-$ anvil
-```
+The test calls the store() function with a test value (e.g., 77).
 
-### Deploy
+It then calls the retrieve() function.
 
-```shell
-$ forge script script/Counter.s.sol:CounterScript --rpc-url <your_rpc_url> --private-key <your_private_key>
-```
+Finally, it asserts (using assertEq) that the value returned by retrieve() is equal to the value that was stored.
 
-### Cast
+testEmitNumberStoredEvent:
 
-```shell
-$ cast <subcommand>
-```
+This test verifies the new event feature.
 
-### Help
+It uses Foundry's vm.expectEmit() cheatcode to tell the test runner to expect an event.
 
-```shell
-$ forge --help
-$ anvil --help
-$ cast --help
-```
+It specifies the exact event signature and data it expects: SimpleStorage.NumberStored(42).
+
+It then calls the store() function with the test value (42).
+
+The test automatically fails if the store() function does not emit this exact event.
+
+These tests confirm that the contract not only stores data correctly but also properly notifies the outside world about that change via its event.
